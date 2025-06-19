@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+
+# Лог-файлы
+*.log
+
+# Конфиги окружения
+.env
+
+# Служебные файлы
+.DS_Store
+*.tmp
+
+# ОС Panel
+.osp/
+
+# VS Code настройки
+.vscode/
