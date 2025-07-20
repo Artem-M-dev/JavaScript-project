@@ -201,11 +201,11 @@ window.addEventListener('DOMContentLoaded', () => {
         }
 
         render() {
-            const element = document.createElement('div'); // Получается у нас внутри этого div-а будет еще один div.
+            const element = document.createElement('div');
 
-            if (this.clases.length === 0) {
-                this.element = 'menu__item';
-                element.classList.add(this.element)
+            if(this.clases.length == 0) {
+                this.element = 'menu__item'
+                element.classList.add(this.element);
             } else {
                 this.clases.forEach(className => element.classList.add(className));
             }
@@ -227,120 +227,148 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
     // getResource - это функция по получению ресурсов 
-    const getResource = async (url) => { // В эту фукнцию можно будет передавать аргументы которые будут потом влиять на заголовки
+    const getResource = async (url) => { // в будущем в эту фукнцию можно будет передавать аргументы которые будут потом влиять на заголовки
         const res = await fetch(url);
 
-        if(!res.ok) { // Если что то пошло не так
+        if (!res.ok) { // Если что то пошло не так
             throw new Error(`Could not fetch ${url}, status: ${res.status}`)
         }
 
         return await res.json()
     }
 
-    getResource('http://localhost:3000/menu')
-    .then(data => {
-        data.forEach(({img, altimg, title, descr, price}) => { // Тут используется деструктуризация
-            new MenuCard(img, altimg, title, descr, price, '.menu .container').render(); 
-        });
-    });
+    getResource("http://localhost:3000/menu")
+        .then(data => {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            })
+        })
+
+    // getResource("http://localhost:3000/menu")
+    //     .then(data => createCard(data));
+
+
+    // function createCard(data) {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         const element = document.createElement('div');
+
+    //         price = price * 80
+
+    //         element.classList.add("menu__item");
+
+    //         element.innerHTML = `
+    //             <img src=${img} alt=${altimg}>
+    //             <h3 class="menu__item-subtitle">${title}</h3>
+    //             <div class="menu__item-descr">${descr}</div>
+    //             <div class="menu__item-divider"></div>
+    //             <div class="menu__item-price">
+    //                 <div class="menu__item-cost">Цена:</div>
+    //                 <div class="menu__item-total"><span>${price}</span> руб/день</div>
+    //             </div>
+    //         `
+
+    //         document.querySelector('.menu .container').append(element);
+    //     })
+    // }
+
+    
+        
 
 
 
     // Forms
 
+
     const forms = document.querySelectorAll('form');
 
-    // message содержит список фраз, при удачных/неудачных попытках отправки данных
     const message = {
         loading: 'img/form/spinner.svg',
-        success: 'Спасибо! Мы скоро с вами свяжемся',
+        success: 'Ваши данные успешно загрузились!',
         failure: 'Что-то пошло не так...'
-    }
+    };
 
     forms.forEach(item => {
-        bindPostData(item)
+        bindPostData(item);
     })
 
-
-    // Фукнция postData занимается тем, что она настраивает наш запрос и возвращает из себя promise - res.json() -- ЭТО JSON!
-    const postData = async (url, data) => { // В эту фукнцию можно будет передавать аргументы которые будут потом влиять на заголовки
+    const postData = async (url, data) => {
         const res = await fetch(url, {
             method: "POST",
             headers: {
                 'Content-type': 'application/json'
             },
-            body: data
-        });
+            body: data,
+        })
 
         return await res.json()
     }
 
     function bindPostData(form) {
-        form.addEventListener('submit', (e) => { // Событие 'submit' срабатывает каждый раз когда мы пытаемся отправить форму 
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-
-            // Введение нового блока, этот блок основной который выводит сообщения 
-            // Находящихся в объекте message
             const statusMessage = document.createElement('img');
-            statusMessage.src = message.loading;
+            statusMessage.src = message.loading
             statusMessage.style.cssText = `
-                display: block;
-                margin: 0 auto;
-            `;
+            display: block;
+            margin: 0 auto;
+            `
             form.insertAdjacentElement('afterend', statusMessage);
-            // Но пока что мы выводим только сообщение о загрузке
-            // Последующие сообщение будут выводиться в ходе проверок
 
 
+            const formData = new FormData(form);
 
-
-            // request.setRequestHeader('Content-type', 'multipart/form-data'); ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ // multipart/form-data - чтобы правильно работать с formData
-
-            const formData = new FormData(form); // Во внутрь мы помещаем форму с которой будут браться данные/информация
-
-            const json = JSON.stringify(Object.fromEntries(formData.entries())); // Таким образом мы получим данные с формы в формате - массивы в одном, объединяющем массиве
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
+            // const object = {};
+            // formData.forEach(function(value, key) {
+            //     object[key] = value
+            // })
 
             postData('http://localhost:3000/requests', json)
-                .then(data => {
-                    console.log(data); // data вместо request.response. Это как раз те данные которые возвращаются из обещания
-                    showThanksModal(message.success); // Если все хорошо то будет сообщение об успешной загрузке
-                    form.reset(); // Так мы сбрасываем форму
-                    statusMessage.remove()
-                }).catch(() => {
-                    showThanksModal(message.failure); // Но иначе будет сообщение о ошибке
-                }).finally(() => {
-                    form.reset();
-                })
+            .then(data => {
+                console.log(data);
+                form.reset();
+                statusMessage.remove();
+                showThanksModal(message.success);
+            }).catch(() => {
+                showThanksModal(message.failure);
+            }).finally(() => {
+                form.reset();
+            })
         })
     }
 
+
     function showThanksModal(message) {
-        const prevModalDialog = document.querySelector('.modal__dialog')
+        const prevModalDialog = document.querySelector('.modal__dialog');
 
         prevModalDialog.classList.add('hide');
-        openModal(); // Функция отвечает за открытие модальных окон
+        openModal();
 
         const thanksModal = document.createElement('div');
         thanksModal.classList.add('modal__dialog');
         thanksModal.innerHTML = `
-            <div class="modal__content">
-                <div class="modal__close" data-close>×</div>
+        <div class="modal__dialog">
+            <div class="modal__content">           
+                <div data-close class="modal__close">&times;</div>
                 <div class="modal__title">${message}</div>
             </div>
-        `;
+        </div>
+        `
 
         document.querySelector('.modal').append(thanksModal);
+
         setTimeout(() => {
             thanksModal.remove();
-            prevModalDialog.classList.add('show');
             prevModalDialog.classList.remove('hide');
-            closeModal(); // Функция для закрытия модального окна
+            prevModalDialog.classList.add('show');
+            closeModal();
         }, 4000)
-    }
+    };
 
+    
 
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
 })
+
+
+
