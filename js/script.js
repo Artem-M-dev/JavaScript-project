@@ -203,7 +203,7 @@ window.addEventListener('DOMContentLoaded', () => {
         render() {
             const element = document.createElement('div');
 
-            if(this.clases.length == 0) {
+            if (this.clases.length == 0) {
                 this.element = 'menu__item'
                 element.classList.add(this.element);
             } else {
@@ -239,7 +239,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     getResource("http://localhost:3000/menu")
         .then(data => {
-            data.forEach(({img, altimg, title, descr, price}) => {
+            data.forEach(({ img, altimg, title, descr, price }) => {
                 new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
             })
         })
@@ -271,8 +271,8 @@ window.addEventListener('DOMContentLoaded', () => {
     //     })
     // }
 
-    
-        
+
+
 
 
 
@@ -325,16 +325,16 @@ window.addEventListener('DOMContentLoaded', () => {
             // })
 
             postData('http://localhost:3000/requests', json)
-            .then(data => {
-                console.log(data);
-                form.reset();
-                statusMessage.remove();
-                showThanksModal(message.success);
-            }).catch(() => {
-                showThanksModal(message.failure);
-            }).finally(() => {
-                form.reset();
-            })
+                .then(data => {
+                    console.log(data);
+                    form.reset();
+                    statusMessage.remove();
+                    showThanksModal(message.success);
+                }).catch(() => {
+                    showThanksModal(message.failure);
+                }).finally(() => {
+                    form.reset();
+                })
         })
     }
 
@@ -366,9 +366,126 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000)
     };
 
-    
 
+    // Slider 
+
+    const slides = document.querySelectorAll('.offer__slide'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'),
+          total = document.querySelector('#total'),
+          current = document.querySelector('#current');
+          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+          slidesField = document.querySelector('.offer__slider-inner'), // Поле с нашими слайдами
+          width = window.getComputedStyle(slidesWrapper).width; // Так мы получем ширину этого элемента на странице.
+
+    console.log(width);
+
+
+    let slideIndex = 1;
+    let offset = 0; // Эта переменная будет вместо slideIndex. Эта переменная контролирует оступы
+
+    if(slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}` 
+    } else {
+        total.textContent = slides.length;
+        current.textContent = slideIndex;
+    }
+
+    slidesField.style.width = 100 * slides.length + '%'; // Таким образом выделили ширину под все слайды
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all'
+    slidesWrapper.style.overflow = 'hidden';
+    slides.forEach(slide => {
+        slide.style.width = width // Установили мы ширину для каждого слайда чтобы она была всегда фиксированной. Вдруг у какого то слайда будет иная ширина
+    })
+
+    next.addEventListener('click', () => {
+        if(offset == +width.slice(0, width.length - 2) * (slides.length - 1)) { 
+            offset = 0;
+        } else {
+            offset += +width.slice(0, width.length - 2);
+        };
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if(slideIndex == slides.length) {
+            slideIndex = 1
+        } else {
+            slideIndex++;
+        }
+
+        if(slides.length < 10) {
+            current.textContent = `0${slideIndex}`
+        } else {
+            current.textContent = slideIndex;
+        }
+    })
+
+    prev.addEventListener('click', () => {
+        if(offset == 0) {
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1)
+        } else {
+            offset -= +width.slice(0, width.length - 2)
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`
+
+        if(slideIndex == 1) { 
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if(slides.length < 10) {
+            current.textContent = `0${slideIndex}`
+        } else {
+            current.textContent = slideIndex;
+        }
+    })
+
+
+    // showSlides(slideIndex);
+
+    // if(slides.length < 10) {
+    //     total.textContent = `0${slides.length}`
+    // } else {
+    //     total.textContent = slides.length
+    // }
+
+    // function showSlides(n) {
+    //     if(n > slides.length) {
+    //         slideIndex = 1
+    //     } 
+
+    //     if(n < 1) {
+    //         slideIndex = slides.length
+    //     }
+
+    //     slides.forEach(item => item.style.display = 'none');
+    //     slides[slideIndex - 1].style.display = 'block';
+
+    //     if(current < 10) {
+    //         current.textContent = `0${slideIndex}`
+    //     } else {
+    //         current.textContent = slideIndex;
+    //     }
+
+    // }
+
+    // function plusSlides(n) {
+    //     showSlides(slideIndex += 1);
+    // }
+
+    // next.addEventListener('click', () => {
+    //     plusSlides(1)
+    // })
+    // prev.addEventListener('click', () => {
+    //     plusSlides(-1)
+    // })
+    
 })
+
 
 
 
